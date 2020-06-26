@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis..org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kgc.ssm.dao.UserMapper">
+    <!--根据用户编码查询用户信息-->
+    <select id="getUserByUserCode" parameterType="String" resultType="cn.kgc.ssm.pojo.User">
+        select * from smbms_user where userCode=#{userCode}
+    </select>
+    <!--根据用户id查询用户信息-->
+    <select id="getUserById" parameterType="int" resultType="cn.kgc.ssm.pojo.User">
+        select * from smbms_user where id=#{id}
+    </select>
+    <!--增加用户-->
+    <insert id="addUser" parameterType="cn.kgc.ssm.pojo.User">
+        insert into smbms_user(userCode,userName,gender,birthday,phone,address,userRole,createdBy,creationDate)
+        values (#{userCode},#{userName},#{gender},#{birthday},#{phone},#{address},#{userRole},#{createdBy},#{creationDate})
+    </insert>
+    <!--更新用户信息-->
+    <update id="updateUser" parameterType="cn.kgc.ssm.pojo.User">
+        update smbms_user
+        <set>
+            <if test="userCode!=null">userCode=#{userCode},</if>
+            <if test="gender!=null">gender=#{gender},</if>
+            <if test="birthday!=null">birthday=#{birthday},</if>
+            <if test="phone!=null">phone=#{phone},</if>
+            <if test="address!=null">address=#{address},</if>
+            <if test="modifyDate!=null">modifyDate=#{modifyDate},</if>
+            <if test="modifyBy!=null">modifyBy=#{modifyBy},</if>
+        </set>
+        <where>id=#{id}</where>
+    </update>
+    <!--用户密码修改-->
+    <update id="updateUserPassword">
+        update smbms_user set userPassword=#{password} where id=#{id}
+    </update>
+    <!--删除用户-->
+    <delete id="deleteUser" parameterType="int">
+        delete from smbms_user where id=#{id}
+    </delete>
+    <resultMap id="userMap" type="cn.kgc.ssm.pojo.User">
+        <result property="id" column="id"/>
+        <result property="userCode" column="userCode"/>
+        <result property="userName" column="userName"/>
+        <result property="gender" column="gender"/>
+        <result property="birthday" column="birthday"/>
+        <result property="phone" column="phone"/>
+        <result property="address" column="address"/>
+        <result property="userRoleName" column="userRoleName"/>
+        <result property="createdBy" column="createdBy"/>
+        <result property="creationDate" column="creationDate"/>
+        <result property="modifyBy" column="modifyBy"/>
+        <result property="modifyDate" column="modifyDate"/>
+    </resultMap>
+    <select id="findUserList" resultMap="userMap">
+        select su.*,sr.roleName as userRoleName from smbms_user su,smbms_role sr where su.userRole=sr.id
+        <if test="userCode!=null">
+            and su.userCode like concat(#{userCode},'%')
+        </if>
+        <if test="userName!=null">
+            and su.userName like concat(#{userName},'%')
+        </if>
+        <if test="userRole!=null">
+            and su.userRole=#{userRole}
+        </if>
+        limit #{begin},#{pageSize}
+    </select>
+    <select id="getTotalCount" resultType="int">
+        select count(1) from smbms_user su,smbms_role sr where su.userRole=sr.id
+        <if test="userCode!=null">
+            and su.userCode like concat(#{userCode},'%')
+        </if>
+        <if test="userName!=null">
+            and su.userName like concat(#{userName},'%')
+        </if>
+        <if test="userRole!=null">
+            and su.userRole=#{userRole}
+        </if>
+    </select>
+
+</mapper>
+
+                 
